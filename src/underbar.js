@@ -231,11 +231,13 @@
       return true;
     }
     // look for any holes in the collection and make them false
-    _.each(collection, function (x){if (x == undefined){return false;} else {return x;}});
+    _.each(collection, function (x){if (x === undefined){return false;} else {return x;}});
     // if an iterator has been supplied run everything through the iterator
-    if (iterator !==undefined) {
+    if (iterator !== undefined) {
       _.each(collection, iterator);
     }
+    // change our entire collection to true false so that reduce can work
+    _.each(collection, function (x){return x ? true : false;})
     // simple multiplication of true false to produce a single result in reduce
     var temp = _.reduce(collection,function (result, x){return result * x;});
     // change our 1 or 0 into true false
@@ -245,10 +247,12 @@
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
-    // run everything through the iterator
+    // run everything through the iterator if there is one
     if (iterator !==undefined) {
       _.each(collection, iterator);
     }
+    _.each(collection, function (x){return x ? true : false;})
+
     //add them all up to get a result
     var temp = _.reduce(collection, function (x, y){return x + y;})
     return temp>0 ? true : false;
@@ -275,11 +279,45 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    //Get the total number of arguments, probably not strictly needed.
+    var argLength = arguments.length;
+    //If there is more than one object inserted, start the process, 
+    //otherwise just return the one object
+    if (argLength > 1) {
+      //Work out way through the argument array
+      for (var i = 1; i < argLength; i++){
+        //Cycle through the key values in the source object
+        for (var key in arguments[i]){
+          //Make a new key value in the destination object or 
+          //overwrite the data of an existing key
+          arguments[0][key] = arguments[i][key];
+        }
+      }
+    }
+    return arguments[0];
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    //I probably don't really need this var declaration here, but I like it.
+    var argLength = arguments.length;
+    //If there is more than one object inserted, start the process, 
+    //otherwise just return the one object
+    if (argLength > 1) {
+      //work our way through the argument array
+      for (var i = 1; i < argLength; i++){
+        //cycle through the key values in the source object
+        for (var key in arguments[i]){
+          //if there isn't already a key name in the destination object, 
+          //make a new key in the destination object
+          if (!arguments[0].hasOwnProperty(key)){
+            arguments[0][key] = arguments[i][key];
+          }
+        }
+      }
+    }
+    return arguments[0];
   };
 
 
@@ -323,6 +361,8 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
