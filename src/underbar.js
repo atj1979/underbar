@@ -7,6 +7,7 @@
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
+    return val;
   };
 
   /**
@@ -37,6 +38,8 @@
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    if (n > array.length || n < 0) {n=array.length;}
+    return n === undefined ? array[(array.length-1)] : array.slice(array.length-n, array.length)
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -45,6 +48,17 @@
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
+    // use regular array loop if the collection is an array
+    if (collection.length !== undefined){
+      for (var i =0; i<collection.length; i++){
+        collection[i]=iterator(collection[i], i, collection);
+      }
+    } else {
+    // Use for-in loop in case of object
+      for (var key in collection){
+        collection[key] = iterator(collection[key], key, collection);
+      }
+    }
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
@@ -66,16 +80,55 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var filteredCollection=[];
+    for (var i = 0; i<collection.length; i++){
+      //if pass the test, add element to a temporary array
+      if (test(collection[i])) {
+        filteredCollection.push(collection[i]);
+      }
+    }
+   
+
+    return filteredCollection;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
+    //var rejectCollection= _.filter(collection, function (){!test;});;
+    var rejectCollection = _.filter(collection, function(x){
+      // invert the test results
+      return !test(x);
+    });
+    return rejectCollection;
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+    //first, we copy the array, I like to do that with data
+    var workArray = array.slice();
+    // the results go here
+    var result = [];
+    //as long as there are elements of the working array, do the while loop
+    while (workArray.length >0){
+      //we set the first value to be the uniqueValue 
+      var uniqueValue = workArray[0];
+      //set send the unique value in here then get rid of all instances of the unique value in our working array
+      result.push(uniqueValue);
+      // we set 'i' here at length of the array, so that we can go from back to front.  
+      //if we were to go from front to back, it would skip values because the indexes change for each removed item
+      //but if we go down, we ensure that we never skip, any item index evaluated would always be greater than 'i'
+      var i = workArray.length;
+      while (i>=0){
+        //remove the matched values and reduce the overall array size
+        if(uniqueValue === workArray[i]){
+          workArray.splice(i,1);
+        }
+        i--;
+      }
+    }    
+    return result;
   };
 
 
@@ -84,6 +137,10 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    var workArray = [];
+    workArray = collection.slice();
+    _.each(workArray,iterator);
+    return workArray;
   };
 
   /*
@@ -125,6 +182,32 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    //I figured out the the solution for the array first because I think arrays are easier to manipulate.
+    //why don't we just make any object into an array that we already have a solution for?
+
+    //make a workArray so that we can do anything we want with that array with fear of changing the original data.
+    var workArray = [];
+    if (collection.length === undefined){
+      for (var key in collection){
+        workArray.push(collection[key]);
+      }
+    } else {
+      workArray = collection.slice(accumulator);
+    }
+
+    if (accumulator === undefined) { 
+      var result = workArray.shift(workArray);
+    } else {
+      var result = 0;
+    }
+    for (var i = 0; i<workArray.length; i++) {
+      result = iterator(result, workArray[i]);
+    }    
+
+
+
+    return result;
+
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -143,11 +226,32 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    //evaluate the entire collectioin here to see if it has any data
+    if (Object.getOwnPropertyNames(collection) === 0 || collection.length ===0){
+      return true;
+    }
+    // look for any holes in the collection and make them false
+    _.each(collection, function (x){if (x == undefined){return false;} else {return x;}});
+    // if an iterator has been supplied run everything through the iterator
+    if (iterator !==undefined) {
+      _.each(collection, iterator);
+    }
+    // simple multiplication of true false to produce a single result in reduce
+    var temp = _.reduce(collection,function (result, x){return result * x;});
+    // change our 1 or 0 into true false
+    return temp ? true : false; 
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
+    // run everything through the iterator
+    if (iterator !==undefined) {
+      _.each(collection, iterator);
+    }
+    //add them all up to get a result
+    var temp = _.reduce(collection, function (x, y){return x + y;})
+    return temp>0 ? true : false;
     // TIP: There's a very clever way to re-use every() here.
   };
 
