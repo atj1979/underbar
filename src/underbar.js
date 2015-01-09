@@ -361,19 +361,17 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-    //create a simple unique way to locate the stored data
-    var temp = Array.prototype.slice(arguments);
-    temp=temp.toString();
-    //create a place to put the data
-    var table;
-    var store = function(){ 
-      //if there's an answer to give, give it, else evaluate the function and arguments
+    // initialize the object here - won't be overwritten because the memoize only occurs once
+    var table={};
+    var store = function(key){ 
+      
+       //if there's an answer to give, give it, else evaluate the function and arguments
       //and store the answer
-      if (table[temp] !== undefined){ 
-        return table[temp];
+      if (table[key] !== undefined){ 
+        return table[key];
       } else {
-        table[temp]=func.apply(this, arguments);
-        return table[temp];
+        table[key]=func.apply(this, arguments);
+        return table[key];
       }
     }
     // return a function to create a scope chain to remember results i.e. closure
@@ -387,7 +385,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   // _.delay = function(func, wait) {
-  //   args = arguments.slice();
+  //   args = Array.prototype.slice.call(arguments);
+  //  var func= args.splice(1,1);
+  //  var time= args.spice(1,1);
+  //  setTimeout(func, time, args);
+  //   
   // };
 
 
@@ -402,20 +404,22 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
-    var temp = Array.prototype.slice(arguments);
+    var tempArray=array.slice();
+    var run = tempArray.length;
     var result=[];
-    while (temp.length > 0) {
+    while (run > 0) {
       //get a random number from available elements
-      if (temp.length !== 1) {
-        x = Math.random(temp.length);
+      if (run > 1 ) {
+        x = Math.floor(Math.random()*run);
       } else { 
         x=0;
       }
       //push the element into our new array
-      result.push(temp[x]);
-      //remove the item because it has been moved already
-      temp.splice(i,1);
+      //remove the element because it has been moved already
+      result.push(tempArray.splice(x,1));
+      run-=1;  
     }
+    
     return result;
   };
 
