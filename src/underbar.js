@@ -366,14 +366,13 @@
     temp=temp.toString();
     //create a place to put the data
     var table;
-    var store = function(){
+    var store = function(){ 
       //if there's an answer to give, give it, else evaluate the function and arguments
       //and store the answer
       if (table[temp] !== undefined){ 
         return table[temp];
       } else {
-        var result=func.apply(this, arguments);
-        table[temp]=result;
+        table[temp]=func.apply(this, arguments);
         return table[temp];
       }
     }
