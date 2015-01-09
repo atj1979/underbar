@@ -364,15 +364,17 @@
     //create a simple unique way to locate the stored data
     var temp = Array.prototype.slice(arguments);
     temp=temp.toString();
-    
+    //create a place to put the data
+    var table;
     var store = function(){
       //if there's an answer to give, give it, else evaluate the function and arguments
       //and store the answer
-      if (_.memoize[temp] !== undefined){ 
-        return _.memoize[temp];
+      if (table[temp] !== undefined){ 
+        return table[temp];
       } else {
-        _.memoize[temp]=func.apply(this, arguments);
-        return _.memoize[temp];
+        var result=func.apply(this, arguments);
+        table[temp]=result;
+        return table[temp];
       }
     }
     // return a function to create a scope chain to remember results i.e. closure
@@ -401,6 +403,21 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var temp = Array.prototype.slice(arguments);
+    var result=[];
+    while (temp.length > 0) {
+      //get a random number from available elements
+      if (temp.length !== 1) {
+        x = Math.random(temp.length);
+      } else { 
+        x=0;
+      }
+      //push the element into our new array
+      result.push(temp[x]);
+      //remove the item because it has been moved already
+      temp.splice(i,1);
+    }
+    return result;
   };
 
 
