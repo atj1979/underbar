@@ -361,8 +361,22 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-
-
+    //create a simple unique way to locate the stored data
+    var temp = Array.prototype.slice(arguments);
+    temp=temp.toString();
+    
+    var store = function(){
+      //if there's an answer to give, give it, else evaluate the function and arguments
+      //and store the answer
+      if (_.memoize[temp] !== undefined){ 
+        return _.memoize[temp];
+      } else {
+        _.memoize[temp]=func.apply(this, arguments);
+        return _.memoize[temp];
+      }
+    }
+    // return a function to create a scope chain to remember results i.e. closure
+    return store;
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -371,8 +385,9 @@
   // The arguments for the original function are passed after the wait
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
-  _.delay = function(func, wait) {
-  };
+  // _.delay = function(func, wait) {
+  //   args = arguments.slice();
+  // };
 
 
   /**
