@@ -384,13 +384,14 @@
   // The arguments for the original function are passed after the wait
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
-  // _.delay = function(func, wait) {
-  //   args = Array.prototype.slice.call(arguments);
-  //  var func= args.splice(1,1);
-  //  var time= args.spice(1,1);
-  //  setTimeout(func, time, args);
-  //   
-  // };
+  _.delay = function(func, wait) {
+    var args = Array.prototype.slice.call(arguments);
+    var args = args.slice(2);
+    //return a function for scope chain
+    return setTimeout (function(){
+      //do function apply because the remaining arguments are within an array
+      return func.apply(null, args);}, wait);
+  };
 
 
   /**
@@ -406,7 +407,8 @@
   _.shuffle = function(array) {
     var tempArray=array.slice();
     var run = tempArray.length;
-    var result=[];
+    var result=Array();
+    var x;
     while (run > 0) {
       //get a random number from available elements
       if (run > 1 ) {
@@ -414,12 +416,15 @@
       } else { 
         x=0;
       }
-      //push the element into our new array
+      //separated into two steps because splice returns an array, not just values
+      //unshift(because its fun) the element value into our new array
+      result.unshift(tempArray[x]);
+
       //remove the element because it has been moved already
-      result.push(tempArray.splice(x,1));
+      tempArray.splice(x,1);
       run-=1;  
     }
-    
+   
     return result;
   };
 
